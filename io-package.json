@@ -79,8 +79,171 @@
 		]
 	},
 	"native": {
-		"option1": true,
-		"option2": "42"
+		"ipAddress": "",
+		"datapointsTable": [
+			{
+				"datapointFriendlyName": "Operating_Mode",
+				"datapointGroup": "Params",
+				"datapointName": "APPL.CtrlAppl.sParam.param.operatingMode",
+				"datapointType": "number",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "Operating_Mode_old",
+				"datapointGroup": "Params",
+				"datapointName": "APPL.CtrlAppl.sParam.param.operatingModeOld",
+				"datapointType": "number",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "System_Version",
+				"datapointGroup": "Params",
+				"datapointName": "APPL.CtrlAppl.sParam.param.systemVersion",
+				"datapointType": "string",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "App_Version",
+				"datapointGroup": "Params",
+				"datapointName": "APPL.CtrlAppl.sParam.param.applVersion",
+				"datapointType": "string",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "System_Name",
+				"datapointGroup": "Params",
+				"datapointName": "APPL.CtrlAppl.sParam.param.systemName",
+				"datapointType": "string",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "Operational_Time",
+				"datapointGroup": "OperationalData",
+				"datapointName": "APPL.CtrlAppl.sParam.operationalData.operationalTimeS",
+				"datapointType": "number",
+				"datapointUnit": "s"
+			},
+			{
+				"datapointFriendlyName": "Min_Run_Time",
+				"datapointGroup": "OperationalData",
+				"datapointName": "APPL.CtrlAppl.sParam.operationalData.minRunTimeS",
+				"datapointType": "number",
+				"datapointUnit": "s"
+			},
+			{
+				"datapointFriendlyName": "Max_Run_Time",
+				"datapointGroup": "OperationalData",
+				"datapointName": "APPL.CtrlAppl.sParam.operationalData.maxRunTimeS",
+				"datapointType": "number",
+				"datapointUnit": "s"
+			},
+			{
+				"datapointFriendlyName": "Activation_Counter",
+				"datapointGroup": "OperationalData",
+				"datapointName": "APPL.CtrlAppl.sParam.operationalData.activationCounter",
+				"datapointType": "number",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "Hot_Water_Temp",
+				"datapointGroup": "Temperatures",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.hotWaterTank[0].topTemp",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Hot_Water_SetTemp",
+				"datapointGroup": "Temperatures",
+				"datapointName": "APPL.CtrlAppl.sParam.hotWaterTank[0].param.normalSetTempMax.value",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Temp_Flow_Set",
+				"datapointGroup": "Temperatures",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatCircuit[0].tempFlowSet",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Selected_Set_Temp",
+				"datapointGroup": "Temperatures",
+				"datapointName": "APPL.CtrlAppl.sParam.heatCircuit[0].values.selectedSetTemp",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Outdoor_Temp",
+				"datapointGroup": "Temperatures",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.tempOutdoor",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Temp_Flow",
+				"datapointGroup": "Temperatures",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.tempFlow",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Compressor",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].Compressor",
+				"datapointType": "number",
+				"datapointUnit": ""
+			},
+			{
+				"datapointFriendlyName": "Compressor_Temp_In",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].TempCompressorIn",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Compressor_Temp_Out",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].TempCompressorOut",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Flow_Temp",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].TempFlow",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Reflux_Temp",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].TempReflux",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Temp_Condenser_Out",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].TempCondenserOut",
+				"datapointType": "number",
+				"datapointUnit": "°C"
+			},
+			{
+				"datapointFriendlyName": "Low_Pressure",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].LowPressure",
+				"datapointType": "number",
+				"datapointUnit": "bar"
+			},
+			{
+				"datapointFriendlyName": "High_Pressure",
+				"datapointGroup": "Heatpump",
+				"datapointName": "APPL.CtrlAppl.sDiagnosisData.heatpump[0].HighPressure",
+				"datapointType": "number",
+				"datapointUnit": "bar"
+			}
+		],
+		"refreshIntervall": 300
 	},
 	"objects": [],
 	"instanceObjects": []

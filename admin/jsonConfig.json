@@ -1,16 +1,129 @@
 {
-	"i18n": true,
-	"type": "panel",
-	"items": {
-		"option1": {
-			"type": "checkbox",
-			"label": "option1",
-			"newLine": true
-		},
-		"option2": {
-			"type": "text",
-			"label": "option2",
-			"newLine": true
-		}
-	}
+    "i18n": true,
+    "type": "panel",
+    "items": {
+        "ipAddress": {
+            "type": "text",
+            "label": "lblIpAddress",
+            "sm": 12,
+            "md": 8,
+            "lg": 4,
+            "validatorNoSaveOnError": true,
+            "validatorErrorText": "lblIpAddressValidationError",
+            "validator": "/^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$/.test(data.ipAddress)"
+        },
+        "refreshIntervall": {
+            "type": "number",
+            "label": "lblRefreshIntervall",
+            "min": 120,
+            "default": 300,
+            "help": "s",
+            "sm": 12,
+            "md": 4,
+            "lg": 2
+        },
+        "datapointsTable": {
+            "newLine": true,
+            "type": "table",
+            "label": "lblTableVarConfig",
+            "sm": 12,
+            "items": [
+                {
+                    "type": "text",
+                    "attr": "datapointFriendlyName",
+                    "title": "lblFriendlyName",
+                    "width": "20%",
+                    "validator": "!(/\\s/g.test(data.datapointFriendlyName))",
+                    "validatorNoSaveOnError": true,
+                    "validatorErrorText": "lbldatapointFriendlyNameValidationError"
+                },
+                {
+                    "type": "text",
+                    "attr": "datapointName",
+                    "title": "lblDataPointName",
+                    "width": "50%"
+                },
+                {
+                    "type": "select",
+                    "attr": "datapointGroup",
+                    "title": "lblDataPointGroup",
+                    "width": "10%",
+                    "options": [
+                        {
+                            "label": "State",
+                            "value": "State"
+                        },
+                        {
+                            "label": "Params",
+                            "value": "Params"
+                        },
+                        {
+                            "label": "Options",
+                            "value": "Options"
+                        },
+                        {
+                            "label": "OperationalData",
+                            "value": "OperationalData"
+                        },
+                        {
+                            "label": "Temperatures",
+                            "value": "Temperatures"
+                        },
+                        {
+                            "label": "Heatpump",
+                            "value": "Heatpump"
+                        },
+                        {
+                            "label": "Miscellaneous",
+                            "value": "Miscellaneous"
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "attr": "datapointType",
+                    "title": "lblDataPointType",
+					"width": "10%",
+                    "options": [
+                        {
+                            "label": "Number",
+                            "value": "number"
+                        },
+                        {
+                            "label": "Boolean",
+                            "value": "boolean"
+                        },
+                        {
+                            "label": "String",
+                            "value": "string"
+                        }
+                    ]
+                },
+                {
+                    "type": "select",
+                    "attr": "datapointUnit",
+                    "title": "lblDataPointUnit",
+                    "width": "10%",
+                    "options": [
+                        {
+                            "label": "",
+                            "value": ""
+                        },
+                        {
+                            "label": "°C",
+                            "value": "°C"
+                        },
+                        {
+                            "label": "bar",
+                            "value": "bar"
+                        },
+                        {
+                            "label": "s",
+                            "value": "s"
+                        }
+                    ]
+                }
+            ]
+        }
+    }
 }

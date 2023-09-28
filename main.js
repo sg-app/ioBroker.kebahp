@@ -9,7 +9,8 @@
 const utils = require("@iobroker/adapter-core");
 
 // Load your modules here, e.g.:
-// const fs = require("fs");
+const axios = require("axios");
+// const https = require("https");
 
 class Kebahp extends utils.Adapter {
 
@@ -21,10 +22,11 @@ class Kebahp extends utils.Adapter {
 			...options,
 			name: "kebahp",
 		});
+
+		this.apiClient = null;
+		this.timer = null;
+
 		this.on("ready", this.onReady.bind(this));
-		this.on("stateChange", this.onStateChange.bind(this));
-		// this.on("objectChange", this.onObjectChange.bind(this));
-		// this.on("message", this.onMessage.bind(this));
 		this.on("unload", this.onUnload.bind(this));
 	}
 
@@ -32,57 +34,136 @@ class Kebahp extends utils.Adapter {
 	 * Is called when databases are connected and adapter received configuration.
 	 */
 	async onReady() {
-		// Initialize your adapter here
+		try {
 
-		// The adapters config (in the instance object everything under the attribute "native") is accessible via
-		// this.config:
-		this.log.info("config option1: " + this.config.option1);
-		this.log.info("config option2: " + this.config.option2);
+			// The adapters config (in the instance object everything under the attribute "native") is accessible via
+			// this.config:
+			if (!this.config.ipAddress) {
+				this.log.error(`Heatpump IP address is empty - please check configuration of ${this.namespace}`);
+				return;
+			}
 
-		/*
-		For every state in the system there has to be also an object of type state
-		Here a simple template for a boolean variable named "testVariable"
-		Because every adapter instance uses its own unique namespace variable names can't collide with other adapters variables
-		*/
-		await this.setObjectNotExistsAsync("testVariable", {
-			type: "state",
-			common: {
-				name: "testVariable",
-				type: "boolean",
-				role: "indicator",
-				read: true,
-				write: true,
-			},
-			native: {},
-		});
+			if (!this.config.ipAddress.match("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}")) {
+				this.log.error(`IP address has wrong format - please check configuration of ${this.namespace}`);
+				return;
+			}
 
-		// In order to get state updates, you need to subscribe to them. The following line adds a subscription for our variable we have created above.
-		this.subscribeStates("testVariable");
-		// You can also add a subscription for multiple states. The following line watches all states starting with "lights."
-		// this.subscribeStates("lights.*");
-		// Or, if you really must, you can also watch all states. Don't do this if you don't need to. Otherwise this will cause a lot of unnecessary load on the system:
-		// this.subscribeStates("*");
+			this.log.debug("Adapter successful started.");
+			this.apiClient = axios.create({
+				baseURL: `http://${this.config.ipAddress}`,
+				timeout: 1000,
+				responseType: "json",
+				responseEncoding: "utf8"
+			});
+			this.log.debug("axios instance successful created.");
 
-		/*
-			setState examples
-			you will notice that each setState will cause the stateChange event to fire (because of above subscribeStates cmd)
-		*/
-		// the variable testVariable is set to true as command (ack=false)
-		await this.setStateAsync("testVariable", true);
+			await this.loadData();
+		}
+		catch (err) {
+			this.log.error(`Error during startup wiht message: ${err.message}`);
+		}
+	}
 
-		// same thing, but the value is flagged "ack"
-		// ack should be always set to true if the value is received from or acknowledged from the target system
-		await this.setStateAsync("testVariable", { val: true, ack: true });
+	async loadData() {
+		try {
+			this.log.debug("Load data from heatpump.");
+			if (!this.apiClient) {
+				this.log.error("Apiclient not instanced.");
+				return;
+			}
+			const body = this.prepareBody();
+			this.log.debug(`Parameters for request: ${JSON.stringify(body)}`);
 
-		// same thing, but the state is deleted after 30s (getState will return null afterwards)
-		await this.setStateAsync("testVariable", { val: true, ack: true, expire: 30 });
+			const response = await this.apiClient.post("/var/readWriteVars?languageCode=de", JSON.stringify(body));
 
-		// examples for the checkPassword/checkGroup functions
-		let result = await this.checkPasswordAsync("admin", "iobroker");
-		this.log.info("check user admin pw iobroker: " + result);
+			this.log.debug(`response ${response.status}: ${JSON.stringify(response.data)}`);
 
-		result = await this.checkGroupAsync("admin", "admin");
-		this.log.info("check group user admin group admin: " + result);
+			if (response.status === 200) {
+				await this.updateAllStates(response.data);
+			}
+
+			this.timer = setTimeout(async () => {
+				this.log.debug("Start next request.");
+				this.timer = null;
+				await this.loadData();
+			}, this.config.refreshIntervall * 1000);
+		}
+		catch (err) {
+			this.log.error(`Error during loading data: ${err.message}`);
+		}
+	}
+
+	prepareBody() {
+		return this.config.datapointsTable.map(f => ({ name: f.datapointName }));
+	}
+
+	/**
+	 * Updates all states.
+	 * @param {object} data JSON Data Array
+	 */
+	async updateAllStates(data) {
+		// Zahlen und Boolen zum richtigen Typen konvertieren!
+		try {
+			this.log.debug("Start with Update all States.");
+			for (let i = 0; i < data.length; i++) {
+				const obj = data[i];
+				for (const prop in obj) {
+					if (Object.prototype.hasOwnProperty.call(obj, prop) && (!isNaN(obj[prop]) || obj[prop] === "false" || obj[prop] === "false")) {
+						obj[prop] = JSON.parse(obj[prop]);
+					}
+				}
+			}
+
+			for (const obj of data) {
+				const item = this.config.datapointsTable.find(f => f.datapointName == obj.name);
+				if (item != undefined) {
+					await this.writeDataToState(
+						`${item.datapointGroup}.${item.datapointFriendlyName}`,
+						item.datapointFriendlyName,
+						item.datapointType,
+						item.datapointUnit,
+						obj.value);
+				}
+			}
+		} catch (err) {
+			this.log.error("Can't update states. " + err.message);
+		}
+	}
+	isInt(n) {
+		return Number(n) === n && n % 1 === 0;
+	}
+	/**
+	 * @param {string | number | boolean} n
+	 */
+	isFloat(n) {
+		return Number(n) === n && n % 1 !== 0;
+	}
+	/**
+	 * @param {string} id
+	 * @param {string} name
+	 * @param {any} type
+	 * @param {string | number | boolean} val
+	 */
+	async writeDataToState(id, name, type, unit, val) {
+		await this.extendObjectAsync(id,
+			{
+				common: {
+					name: name,
+					role: "value",
+					write: false,
+					read: true,
+					type: type,
+					unit: unit
+				},
+				type: "state",
+				native: {}
+			});
+		if (this.isFloat(val)) {
+			await this.setStateAsync(id, Math.round(Number(val) * 100) / 100, true);
+		}
+		else{
+			await this.setStateAsync(id, val, true);
+		}
 	}
 
 	/**
@@ -91,34 +172,15 @@ class Kebahp extends utils.Adapter {
 	 */
 	onUnload(callback) {
 		try {
-			// Here you must clear all timeouts or intervals that may still be active
-			// clearTimeout(timeout1);
-			// clearTimeout(timeout2);
-			// ...
-			// clearInterval(interval1);
-
+			if (this.timer) {
+				clearTimeout(this.timer);
+				this.timer = null;
+			}
 			callback();
 		} catch (e) {
 			callback();
 		}
 	}
-
-	// If you need to react to object changes, uncomment the following block and the corresponding line in the constructor.
-	// You also need to subscribe to the objects with `this.subscribeObjects`, similar to `this.subscribeStates`.
-	// /**
-	//  * Is called if a subscribed object changes
-	//  * @param {string} id
-	//  * @param {ioBroker.Object | null | undefined} obj
-	//  */
-	// onObjectChange(id, obj) {
-	// 	if (obj) {
-	// 		// The object was changed
-	// 		this.log.info(`object ${id} changed: ${JSON.stringify(obj)}`);
-	// 	} else {
-	// 		// The object was deleted
-	// 		this.log.info(`object ${id} deleted`);
-	// 	}
-	// }
 
 	/**
 	 * Is called if a subscribed state changes

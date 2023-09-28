@@ -1,5 +1,13 @@
 {
 	"kebahp adapter settings": "Adapter settings for kebahp",
-	"option1": "option1",
-	"option2": "option2"
+    "lblDataPointGroup": "Group",
+    "lblDataPointName": "Name of datapoint",
+    "lblDataPointType": "Type",
+    "lblDataPointUnit": "Unit",
+    "lblFriendlyName": "Friendly name",
+    "lblIpAddress": "IP address",
+    "lblIpAddressValidationError": "IP address has wrong format!",
+    "lblRefreshIntervall": "Refresh intervall",
+    "lblTableVarConfig": "Datapoint configuration",
+    "lbldatapointFriendlyNameValidationError": "No whitespaces allowed!"
 }
