@@ -32,7 +32,7 @@ Fetch data from KeBa heat pump
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 0.1.0 (2023-09-28)
 * (sg-app) initial release
 
 ## License
