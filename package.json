@@ -1,6 +1,6 @@
 {
   "name": "iobroker.kebahp",
-  "version": "0.0.2-alpha.0",
+  "version": "0.0.1",
   "description": "Fetch data from KeBa heat pump",
   "author": {
     "name": "sg-app",
@@ -17,7 +17,7 @@
     "url": "https://github.com/sg-app/ioBroker.kebahp.git"
   },
   "engines": {
-    "node": ">= 18"
+    "node": ">= 16"
   },
   "dependencies": {
     "@iobroker/adapter-core": "^3.0.3",
