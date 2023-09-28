@@ -1,5 +1,13 @@
 {
-	"kebahp adapter settings": "kebahp的适配器设置",
-	"option1": "选项1",
-	"option2": "选项2"
+    "kebahp adapter settings": "kebahp的适配器设置",
+    "lblDataPointGroup": "团体",
+    "lblDataPointName": "数据点名称",
+    "lblDataPointType": "类型",
+    "lblDataPointUnit": "单元",
+    "lblFriendlyName": "友好名称",
+    "lblIpAddress": "IP地址",
+    "lblIpAddressValidationError": "IP地址格式错误！",
+    "lblRefreshIntervall": "刷新间隔",
+    "lblTableVarConfig": "数据点配置",
+    "lbldatapointFriendlyNameValidationError": "不允许有空格！"
 }

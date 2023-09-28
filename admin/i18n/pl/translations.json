@@ -1,5 +1,13 @@
 {
-	"kebahp adapter settings": "Ustawienia adaptera dla kebahp",
-	"option1": "opcja 1",
-	"option2": "Opcja 2"
+    "kebahp adapter settings": "Ustawienia adaptera dla kebahp",
+    "lblDataPointGroup": "Grupa",
+    "lblDataPointName": "Nazwa punktu danych",
+    "lblDataPointType": "Typ",
+    "lblDataPointUnit": "Jednostka",
+    "lblFriendlyName": "Przyjazne imię",
+    "lblIpAddress": "adres IP",
+    "lblIpAddressValidationError": "Adres IP ma nieprawidłowy format!",
+    "lblRefreshIntervall": "Odśwież interwał",
+    "lblTableVarConfig": "Konfiguracja punktu danych",
+    "lbldatapointFriendlyNameValidationError": "Żadne białe znaki nie są dozwolone!"
 }

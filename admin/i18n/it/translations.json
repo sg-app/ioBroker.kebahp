@@ -1,5 +1,13 @@
 {
-	"kebahp adapter settings": "Impostazioni dell'adattatore per kebahp",
-	"option1": "opzione 1",
-	"option2": "opzione 2"
+    "kebahp adapter settings": "Impostazioni dell'adattatore per kebahp",
+    "lblDataPointGroup": "Gruppo",
+    "lblDataPointName": "Nome del punto dati",
+    "lblDataPointType": "Tipo",
+    "lblDataPointUnit": "Unità",
+    "lblFriendlyName": "Nome amichevole",
+    "lblIpAddress": "indirizzo IP",
+    "lblIpAddressValidationError": "L'indirizzo IP ha un formato errato!",
+    "lblRefreshIntervall": "Intervallo di aggiornamento",
+    "lblTableVarConfig": "Configurazione del punto dati",
+    "lbldatapointFriendlyNameValidationError": "Non sono ammessi spazi bianchi!"
 }

@@ -1,5 +1,13 @@
 {
-	"kebahp adapter settings": "Настройки адаптера для kebahp",
-	"option1": "Опция 1",
-	"option2": "вариант 2"
+    "kebahp adapter settings": "Настройки адаптера для kebahp",
+    "lblDataPointGroup": "Группа",
+    "lblDataPointName": "Имя точки данных",
+    "lblDataPointType": "Тип",
+    "lblDataPointUnit": "Единица",
+    "lblFriendlyName": "Дружественное имя",
+    "lblIpAddress": "айпи адрес",
+    "lblIpAddressValidationError": "IP-адрес имеет неверный формат!",
+    "lblRefreshIntervall": "Интервал обновления",
+    "lblTableVarConfig": "Конфигурация точки данных",
+    "lbldatapointFriendlyNameValidationError": "Пробелы не допускаются!"
 }

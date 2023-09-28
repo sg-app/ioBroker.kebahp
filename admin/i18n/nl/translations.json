@@ -1,5 +1,13 @@
 {
-	"kebahp adapter settings": "Adapterinstellingen voor kebahp",
-	"option1": "Optie 1",
-	"option2": "Optie 2"
+    "kebahp adapter settings": "Adapterinstellingen voor kebahp",
+    "lblDataPointGroup": "Groep",
+    "lblDataPointName": "Naam van datapunt",
+    "lblDataPointType": "Type",
+    "lblDataPointUnit": "Eenheid",
+    "lblFriendlyName": "Vriendelijke naam",
+    "lblIpAddress": "IP adres",
+    "lblIpAddressValidationError": "IP-adres heeft het verkeerde formaat!",
+    "lblRefreshIntervall": "Vernieuwingsinterval",
+    "lblTableVarConfig": "Datapuntconfiguratie",
+    "lbldatapointFriendlyNameValidationError": "Geen spaties toegestaan!"
 }
