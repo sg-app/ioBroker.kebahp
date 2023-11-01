@@ -81,15 +81,17 @@ class Kebahp extends utils.Adapter {
 			if (response.status === 200) {
 				await this.updateAllStates(response.data);
 			}
-
+		}
+		catch (err) {
+			this.log.error(`Error during loading data: ${err.message}`);
+		}
+		finally{
+			// Restart request load Data!
 			this.timer = setTimeout(async () => {
 				this.log.debug("Start next request.");
 				this.timer = null;
 				await this.loadData();
 			}, this.config.refreshIntervall * 1000);
-		}
-		catch (err) {
-			this.log.error(`Error during loading data: ${err.message}`);
 		}
 	}
 
