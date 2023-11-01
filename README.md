@@ -32,6 +32,9 @@ Fetch data from KeBa heat pump
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (sg-app) set request timeout to 5s
+
 ### 0.0.1-beta.1 (2023-11-01)
 * (sg-app) fix starting next request on error
 

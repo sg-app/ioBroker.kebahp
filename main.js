@@ -51,7 +51,7 @@ class Kebahp extends utils.Adapter {
 			this.log.debug("Adapter successful started.");
 			this.apiClient = axios.create({
 				baseURL: `http://${this.config.ipAddress}`,
-				timeout: 1000,
+				timeout: 5000,
 				responseType: "json",
 				responseEncoding: "utf8"
 			});
