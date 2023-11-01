@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "kebahp",
-    "version": "0.0.1-beta.0",
+    "version": "0.0.1-beta.1",
     "news": {
+      "0.0.1-beta.1": {
+        "en": "fix starting next request on error",
+        "de": "beheben sie die nächste anfrage auf fehler",
+        "ru": "исправить, начиная с следующего запроса по ошибке",
+        "pt": "corrigir a partir da próxima solicitação no erro",
+        "nl": "het starten van volgende verzoek op fout",
+        "fr": "corriger la requête suivante sur erreur",
+        "it": "correggere l'avvio della prossima richiesta sull'errore",
+        "es": "fijar la siguiente solicitud de error",
+        "pl": "naprawić kolejne żądania błędów",
+        "uk": "виправити, починаючи з наступного запиту на помилку",
+        "zh-cn": "f 预先提出错误请求"
+      },
       "0.0.1-beta.0": {
         "en": "initial release",
         "de": "erstausstrahlung",
