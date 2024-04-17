@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "kebahp",
-    "version": "0.0.1-beta.1",
+    "version": "0.1.0",
     "news": {
+      "0.1.0": {
+        "en": "set request timeout to 5s",
+        "de": "angebotsfrist für 5er",
+        "ru": "установите тайм-аут на 5s",
+        "pt": "set request timeout para 5s",
+        "nl": "verzoek timeout instellen op 5s",
+        "fr": "définir le délai de demande à 5s",
+        "it": "set timeout richiesta a 5s",
+        "es": "tiempo de solicitud para 5s",
+        "pl": "ustaw czas oczekiwania na 5s",
+        "uk": "встановити час замовлення до 5-х",
+        "zh-cn": "将请求超时到 5s"
+      },
       "0.0.1-beta.1": {
         "en": "fix starting next request on error",
         "de": "beheben sie die nächste anfrage auf fehler",
