@@ -76,7 +76,11 @@
       "keba",
       "heatpump"
     ],
-    "license": "MIT",
+    "tier": 2,
+    "licenseInformation": {
+      "license": "MIT",
+      "type": "free"
+    },
     "platform": "Javascript/Node.js",
     "main": "main.js",
     "icon": "kebahp.png",
