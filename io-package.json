@@ -1,8 +1,21 @@
 {
   "common": {
     "name": "kebahp",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "news": {
+      "0.1.1": {
+        "en": "fix version error",
+        "de": "fehler bei der ausführung",
+        "ru": "ошибка",
+        "pt": "corrigir erro de versão",
+        "nl": "versiefout herstellen",
+        "fr": "correction de l'erreur de version",
+        "it": "correzione dell'errore della versione",
+        "es": "error de versión",
+        "pl": "naprawić błąd wersji",
+        "uk": "виправлено помилку версії",
+        "zh-cn": "修复版本错误"
+      },
       "0.1.0": {
         "en": "set request timeout to 5s",
         "de": "angebotsfrist für 5er",
