@@ -84,7 +84,7 @@ For live validation use the [@iobroker/dev-server](https://github.com/ioBroker/d
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
-### **WORK IN PROGRESS**
+### 1.0.0 (2026-11-07)
 * (sg-app) migrate the adapter sources to TypeScript, compiled output is generated into `build/`
 * (sg-app) update dependencies, Node.js and js-controller/admin requirements
 * (sg-app) validate the configured IP address strictly as IPv4 and the refresh interval as 120-3600 s
