@@ -108,7 +108,7 @@
       "type": "free"
     },
     "platform": "Javascript/Node.js",
-    "main": "main.js",
+    "main": "build/main.js",
     "icon": "kebahp.png",
     "enabled": true,
     "extIcon": "https://raw.githubusercontent.com/sg-app/ioBroker.kebahp/main/admin/kebahp.png",
@@ -124,12 +124,12 @@
     },
     "dependencies": [
       {
-        "js-controller": ">=3.3.22"
+        "js-controller": ">=7.2.2"
       }
     ],
     "globalDependencies": [
       {
-        "admin": ">=5.1.13"
+        "admin": ">=8.0.11"
       }
     ]
   },

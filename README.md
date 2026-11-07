@@ -32,6 +32,12 @@ Fetch data from KeBa heat pump
 	Placeholder for the next version (at the beginning of the line):
 	### **WORK IN PROGRESS**
 -->
+### **WORK IN PROGRESS**
+* (sg-app) migrate the adapter sources to TypeScript, compiled output is generated into `build/`
+* (sg-app) update dependencies, Node.js and js-controller/admin requirements
+* (sg-app) validate the configured IP address strictly as IPv4
+* (sg-app) use the adapter timers so the adapter works in compact mode
+
 ### 0.1.1 (2024-04-17)
 * (sg-app) fix version error
 
@@ -47,7 +53,7 @@ Fetch data from KeBa heat pump
 ## License
 MIT License
 
-Copyright (c) 2024 sg-app <info@sg-app.de>
+Copyright (c) 2024-2026 sg-app <info@sg-app.de>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

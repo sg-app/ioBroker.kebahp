@@ -18,8 +18,8 @@
 	"connectionType": "local",
 	"dataSource": "poll",
 	"connectionIndicator": "no",
-	"language": "JavaScript",
-	"nodeVersion": "18",
+	"language": "TypeScript",
+	"nodeVersion": "22",
 	"adminUi": "json",
 	"tools": [
 		"ESLint",
