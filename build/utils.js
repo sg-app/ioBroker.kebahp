@@ -18,6 +18,7 @@ var __copyProps = (to, from, except, desc) => {
 var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 var utils_exports = {};
 __export(utils_exports, {
+  normalizeValue: () => normalizeValue,
   parseValue: () => parseValue,
   roundToTwoDecimals: () => roundToTwoDecimals
 });
@@ -39,8 +40,15 @@ function parseValue(value) {
 function roundToTwoDecimals(value) {
   return Math.round(value * 100) / 100;
 }
+function normalizeValue(value) {
+  if (typeof value === "number" && value % 1 !== 0) {
+    return roundToTwoDecimals(value);
+  }
+  return value;
+}
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
+  normalizeValue,
   parseValue,
   roundToTwoDecimals
 });

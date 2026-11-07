@@ -33,3 +33,16 @@ export function parseValue(value: unknown): unknown {
 export function roundToTwoDecimals(value: number): number {
     return Math.round(value * 100) / 100;
 }
+
+/**
+ * Rounds float values to two decimal places, other values are returned unchanged.
+ *
+ * @param value - Value to normalize
+ * @returns The normalized value
+ */
+export function normalizeValue(value: ioBroker.StateValue): ioBroker.StateValue {
+    if (typeof value === 'number' && value % 1 !== 0) {
+        return roundToTwoDecimals(value);
+    }
+    return value;
+}

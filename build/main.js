@@ -23,10 +23,14 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 var utils = __toESM(require("@iobroker/adapter-core"));
 var import_axios = __toESM(require("axios"));
+var import_node_http = require("node:http");
 var import_node_net = require("node:net");
+var import_datapoints = require("./datapoints");
 var import_utils = require("./utils");
 const HEARTBEAT_INTERVAL_MS = 10 * 60 * 1e3;
 const WRITE_BATCH_SIZE = 50;
+const MIN_REFRESH_INTERVAL = 120;
+const MAX_REFRESH_INTERVAL = 3600;
 class Kebahp extends utils.Adapter {
   /** REST client for the KeBa heat pump. */
   apiClient = null;
@@ -40,6 +44,8 @@ class Kebahp extends utils.Adapter {
   valueCache = /* @__PURE__ */ new Map();
   /** Timestamp of the last full write cycle. */
   lastFullWrite = 0;
+  /** Last known connection state, `null` while unknown. */
+  connectionState = null;
   /**
    * @param options - Adapter options provided by ioBroker
    */
@@ -64,14 +70,33 @@ class Kebahp extends utils.Adapter {
         this.log.error(`IP address has wrong format - please check configuration of ${this.namespace}`);
         return;
       }
+      if (!Number.isFinite(this.config.refreshIntervall) || this.config.refreshIntervall < MIN_REFRESH_INTERVAL || this.config.refreshIntervall > MAX_REFRESH_INTERVAL) {
+        this.log.error(
+          `Refresh interval only allows a range from ${MIN_REFRESH_INTERVAL}s to ${MAX_REFRESH_INTERVAL}s - please check configuration of ${this.namespace}`
+        );
+        return;
+      }
       this.log.debug("Adapter successful started.");
       this.apiClient = import_axios.default.create({
         baseURL: `http://${this.config.ipAddress}`,
         timeout: 5e3,
         responseType: "json",
-        responseEncoding: "utf8"
+        responseEncoding: "utf8",
+        httpAgent: new import_node_http.Agent({ keepAlive: true })
       });
       this.log.debug("axios instance successful created.");
+      await this.setObjectNotExistsAsync("info.connection", {
+        type: "state",
+        common: {
+          name: "Connection",
+          type: "boolean",
+          role: "indicator.connected",
+          read: true,
+          write: false,
+          def: false
+        },
+        native: {}
+      });
       await this.loadExistingObjects();
       await this.loadData();
     } catch (error) {
@@ -93,10 +118,21 @@ class Kebahp extends utils.Adapter {
       const response = await this.apiClient.post("/var/readWriteVars?languageCode=de", JSON.stringify(body));
       this.log.debug(`response ${response.status}: ${JSON.stringify(response.data)}`);
       if (response.status === 200) {
-        await this.updateAllStates(response.data);
+        const datapoints = (0, import_datapoints.parseDatapoints)(response.data);
+        await this.updateAllStates(datapoints);
+        if (this.connectionState !== true) {
+          this.log.info("Connected to the heat pump.");
+        }
+        await this.setConnected(true);
       }
     } catch (error) {
-      this.log.error(`Error during loading data: ${this.getErrorMessage(error)}`);
+      const message = this.getErrorMessage(error);
+      if (this.connectionState !== false) {
+        this.log.error(`Error during loading data: ${message}`);
+      } else {
+        this.log.debug(`Error during loading data: ${message}`);
+      }
+      await this.setConnected(false);
     } finally {
       if (!this.unloaded && !this.timer) {
         this.timer = this.setTimeout(async () => {
@@ -127,20 +163,10 @@ class Kebahp extends utils.Adapter {
     for (const [id, object] of Object.entries(objects)) {
       const localId = id.startsWith(prefix) ? id.slice(prefix.length) : id;
       if (object.type === "state") {
-        this.stateSignatures.set(localId, this.stateSignature(object));
+        this.stateSignatures.set(localId, (0, import_datapoints.buildStateSignature)(object));
       }
     }
     this.log.debug(`[loadExistingObjects] Found ${this.stateSignatures.size} states.`);
-  }
-  /**
-   * Builds a comparable signature of the state properties the adapter manages.
-   *
-   * @param object - State object, either from the object tree or newly built
-   * @returns A string which changes whenever a managed property changes
-   */
-  stateSignature(object) {
-    const common = object.common;
-    return JSON.stringify([common.name, common.role, common.type, common.unit, common.read, common.write]);
   }
   /**
    * Updates all states.
@@ -164,13 +190,9 @@ class Kebahp extends utils.Adapter {
         const item = this.config.datapointsTable.find((f) => f.datapointName === obj.name);
         if (item) {
           const id = `${item.datapointGroup}.${item.datapointFriendlyName}`;
-          await this.createStateObject(
-            id,
-            item.datapointFriendlyName,
-            item.datapointType,
-            item.datapointUnit
-          );
-          const value = this.normalizeValue(obj.value);
+          const type = (0, import_datapoints.isValidCommonType)(item.datapointType) ? item.datapointType : "string";
+          await this.createStateObject(id, item.datapointFriendlyName, type, item.datapointUnit);
+          const value = (0, import_utils.normalizeValue)(obj.value);
           if (this.shouldWrite(id, value)) {
             pending.push({ id, val: value });
           }
@@ -195,7 +217,7 @@ class Kebahp extends utils.Adapter {
       type: "state",
       native: {}
     };
-    const signature = this.stateSignature(stateObject);
+    const signature = (0, import_datapoints.buildStateSignature)(stateObject);
     if (this.stateSignatures.get(id) === signature) {
       return;
     }
@@ -203,16 +225,16 @@ class Kebahp extends utils.Adapter {
     this.stateSignatures.set(id, signature);
   }
   /**
-   * Rounds float values to two decimal places.
+   * Updates the connection indicator state.
    *
-   * @param val - Value to normalize
-   * @returns The normalized value
+   * @param connected - Whether the heat pump is reachable
    */
-  normalizeValue(val) {
-    if (typeof val === "number" && val % 1 !== 0) {
-      return (0, import_utils.roundToTwoDecimals)(val);
+  async setConnected(connected) {
+    if (this.connectionState === connected) {
+      return;
     }
-    return val;
+    this.connectionState = connected;
+    await this.setState("info.connection", { val: connected, ack: true });
   }
   /**
    * Checks whether a value changed since the last write.

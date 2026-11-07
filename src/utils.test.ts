@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { parseValue, roundToTwoDecimals } from './utils';
+import { normalizeValue, parseValue, roundToTwoDecimals } from './utils';
 
 describe('lib/utils', () => {
     describe('parseValue', () => {
@@ -32,6 +32,19 @@ describe('lib/utils', () => {
             expect(roundToTwoDecimals(1.2345)).to.equal(1.23);
             expect(roundToTwoDecimals(1.2355)).to.equal(1.24);
             expect(roundToTwoDecimals(2)).to.equal(2);
+        });
+    });
+
+    describe('normalizeValue', () => {
+        it('rounds float numbers', () => {
+            expect(normalizeValue(1.2345)).to.equal(1.23);
+        });
+
+        it('keeps integers, strings and booleans unchanged', () => {
+            expect(normalizeValue(2)).to.equal(2);
+            expect(normalizeValue('text')).to.equal('text');
+            expect(normalizeValue(true)).to.equal(true);
+            expect(normalizeValue(null)).to.equal(null);
         });
     });
 });

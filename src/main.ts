@@ -2,25 +2,19 @@
 // you need to create an adapter
 import * as utils from '@iobroker/adapter-core';
 import axios, { type AxiosInstance } from 'axios';
+import { Agent } from 'node:http';
 import { isIPv4 } from 'node:net';
-import { parseValue, roundToTwoDecimals } from './utils';
+import { buildStateSignature, isValidCommonType, parseDatapoints, type KebahpDatapoint } from './datapoints';
+import { normalizeValue, parseValue } from './utils';
 
 /** States which did not change are rewritten at least once within this interval. */
 const HEARTBEAT_INTERVAL_MS = 10 * 60 * 1000;
 /** Number of state writes which are dispatched in parallel. */
 const WRITE_BATCH_SIZE = 50;
-
-/**
- * A single datapoint as returned by the KeBa heat pump.
- */
-interface KebahpDatapoint {
-    /** Full name of the datapoint, e.g. `APPL.CtrlAppl.sParam.param.operatingMode`. */
-    name: string;
-    /** Current value of the datapoint. */
-    value: ioBroker.StateValue;
-    /** Additional properties delivered by the heat pump. */
-    [key: string]: unknown;
-}
+/** Minimum allowed refresh interval in seconds. */
+const MIN_REFRESH_INTERVAL = 120;
+/** Maximum allowed refresh interval in seconds. */
+const MAX_REFRESH_INTERVAL = 3600;
 
 class Kebahp extends utils.Adapter {
     /** REST client for the KeBa heat pump. */
@@ -35,6 +29,8 @@ class Kebahp extends utils.Adapter {
     private readonly valueCache: Map<string, ioBroker.StateValue> = new Map<string, ioBroker.StateValue>();
     /** Timestamp of the last full write cycle. */
     private lastFullWrite = 0;
+    /** Last known connection state, `null` while unknown. */
+    private connectionState: boolean | null = null;
 
     /**
      * @param options - Adapter options provided by ioBroker
@@ -66,14 +62,39 @@ class Kebahp extends utils.Adapter {
                 return;
             }
 
+            if (
+                !Number.isFinite(this.config.refreshIntervall) ||
+                this.config.refreshIntervall < MIN_REFRESH_INTERVAL ||
+                this.config.refreshIntervall > MAX_REFRESH_INTERVAL
+            ) {
+                this.log.error(
+                    `Refresh interval only allows a range from ${MIN_REFRESH_INTERVAL}s to ${MAX_REFRESH_INTERVAL}s - please check configuration of ${this.namespace}`,
+                );
+                return;
+            }
+
             this.log.debug('Adapter successful started.');
             this.apiClient = axios.create({
                 baseURL: `http://${this.config.ipAddress}`,
                 timeout: 5000,
                 responseType: 'json',
                 responseEncoding: 'utf8',
+                httpAgent: new Agent({ keepAlive: true }),
             });
             this.log.debug('axios instance successful created.');
+
+            await this.setObjectNotExistsAsync('info.connection', {
+                type: 'state',
+                common: {
+                    name: 'Connection',
+                    type: 'boolean',
+                    role: 'indicator.connected',
+                    read: true,
+                    write: false,
+                    def: false,
+                },
+                native: {},
+            });
 
             await this.loadExistingObjects();
             await this.loadData();
@@ -100,10 +121,21 @@ class Kebahp extends utils.Adapter {
             this.log.debug(`response ${response.status}: ${JSON.stringify(response.data)}`);
 
             if (response.status === 200) {
-                await this.updateAllStates(response.data as KebahpDatapoint[]);
+                const datapoints = parseDatapoints(response.data);
+                await this.updateAllStates(datapoints);
+                if (this.connectionState !== true) {
+                    this.log.info('Connected to the heat pump.');
+                }
+                await this.setConnected(true);
             }
         } catch (error) {
-            this.log.error(`Error during loading data: ${this.getErrorMessage(error)}`);
+            const message = this.getErrorMessage(error);
+            if (this.connectionState !== false) {
+                this.log.error(`Error during loading data: ${message}`);
+            } else {
+                this.log.debug(`Error during loading data: ${message}`);
+            }
+            await this.setConnected(false);
         } finally {
             // Restart request load Data!
             if (!this.unloaded && !this.timer) {
@@ -138,22 +170,11 @@ class Kebahp extends utils.Adapter {
         for (const [id, object] of Object.entries(objects)) {
             const localId = id.startsWith(prefix) ? id.slice(prefix.length) : id;
             if (object.type === 'state') {
-                this.stateSignatures.set(localId, this.stateSignature(object));
+                this.stateSignatures.set(localId, buildStateSignature(object));
             }
         }
 
         this.log.debug(`[loadExistingObjects] Found ${this.stateSignatures.size} states.`);
-    }
-
-    /**
-     * Builds a comparable signature of the state properties the adapter manages.
-     *
-     * @param object - State object, either from the object tree or newly built
-     * @returns A string which changes whenever a managed property changes
-     */
-    private stateSignature(object: Pick<ioBroker.StateObject, 'common'>): string {
-        const common = object.common;
-        return JSON.stringify([common.name, common.role, common.type, common.unit, common.read, common.write]);
     }
 
     /**
@@ -183,13 +204,9 @@ class Kebahp extends utils.Adapter {
                 const item = this.config.datapointsTable.find(f => f.datapointName === obj.name);
                 if (item) {
                     const id = `${item.datapointGroup}.${item.datapointFriendlyName}`;
-                    await this.createStateObject(
-                        id,
-                        item.datapointFriendlyName,
-                        item.datapointType as ioBroker.CommonType,
-                        item.datapointUnit,
-                    );
-                    const value = this.normalizeValue(obj.value);
+                    const type = isValidCommonType(item.datapointType) ? item.datapointType : 'string';
+                    await this.createStateObject(id, item.datapointFriendlyName, type, item.datapointUnit);
+                    const value = normalizeValue(obj.value);
                     if (this.shouldWrite(id, value)) {
                         pending.push({ id, val: value });
                     }
@@ -216,7 +233,7 @@ class Kebahp extends utils.Adapter {
             type: 'state',
             native: {},
         };
-        const signature = this.stateSignature(stateObject);
+        const signature = buildStateSignature(stateObject);
         if (this.stateSignatures.get(id) === signature) {
             return;
         }
@@ -226,16 +243,16 @@ class Kebahp extends utils.Adapter {
     }
 
     /**
-     * Rounds float values to two decimal places.
+     * Updates the connection indicator state.
      *
-     * @param val - Value to normalize
-     * @returns The normalized value
+     * @param connected - Whether the heat pump is reachable
      */
-    private normalizeValue(val: ioBroker.StateValue): ioBroker.StateValue {
-        if (typeof val === 'number' && val % 1 !== 0) {
-            return roundToTwoDecimals(val);
+    private async setConnected(connected: boolean): Promise<void> {
+        if (this.connectionState === connected) {
+            return;
         }
-        return val;
+        this.connectionState = connected;
+        await this.setState('info.connection', { val: connected, ack: true });
     }
 
     /**
